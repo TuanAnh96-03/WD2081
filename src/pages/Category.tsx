@@ -1,0 +1,196 @@
+import { useQuery } from '@tanstack/react-query';
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import type { ICategory } from '../interface/category';
+import axios from 'axios';
+import type { IProduct } from '../interface/product';
+
+const Category = () => {
+  const {id} = useParams<{id:string}>();
+  const categoryId =Number(id)
+
+  const {data: category} = useQuery<ICategory>({
+      queryKey:['category',categoryId],
+      queryFn:async()=>{
+        const{data} = await axios.get(`http://localhost:3000/categories/${categoryId}`);
+        return data
+      },
+  })
+
+  const{data: products = [], isLoading}  = useQuery<IProduct[]>({
+    queryKey:['products','category',categoryId],
+    queryFn: async()=>{
+      const{data} = await axios.get(`http://localhost:3000/products?categoryId=${categoryId}`)
+      return data
+    }
+  });
+  if(isLoading){
+  return (
+      <div className="max-w-7xl mx-auto px-4 py-6 text-black">
+        <div className="text-center py-12">
+          <span>Loading products...</span>
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-6 text-black">
+      {/* Navigation / Breadcrumbs */}
+      <nav className="flex items-center gap-2 text-gray-400 text-sm mb-8">
+        <a href="/" className="hover:text-black transition-colors">Home</a>
+        <span>&gt;</span>
+        <span className="text-black font-medium">{category?.name||'Category v'}</span>
+      </nav>
+
+      <div className="flex gap-8">
+        {/* Sidebar - Filters */}
+        <aside className="w-72 hidden md:block border border-black/10 rounded-3xl p-6 h-fit">
+          <div className="flex justify-between items-center pb-4 border-b">
+            <h2 className="text-xl font-bold">Filters</h2>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 21v-7m0-4V3m8 18v-9m0-4V3m8 18v-5m0-4V3M1 14h6m2-3h6m2 5h6" />
+            </svg>
+          </div>
+
+          {/* Categories */}
+          <div className="py-4 border-b space-y-3 text-gray-500 font-medium">
+            <div className="flex justify-between items-center cursor-pointer hover:text-black"><span>T-shirts</span><span>&gt;</span></div>
+            <div className="flex justify-between items-center cursor-pointer hover:text-black"><span>Shorts</span><span>&gt;</span></div>
+            <div className="flex justify-between items-center cursor-pointer hover:text-black"><span>Shirts</span><span>&gt;</span></div>
+            <div className="flex justify-between items-center cursor-pointer hover:text-black"><span>Hoodie</span><span>&gt;</span></div>
+            <div className="flex justify-between items-center cursor-pointer hover:text-black"><span>Jeans</span><span>&gt;</span></div>
+          </div>
+
+          {/* Price Range */}
+          <div className="py-6 border-b">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold">Price</h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 15l-6-6-6 6" /></svg>
+            </div>
+            <div className="relative h-1 bg-gray-200 rounded-full my-6">
+              <div className="absolute h-1 bg-black rounded-full" style={{ left: '20%', right: '30%' }}></div>
+              <div className="absolute w-4 h-4 bg-black rounded-full -top-1.5 left-[20%] border-2 border-white cursor-pointer shadow-sm"></div>
+              <div className="absolute w-4 h-4 bg-black rounded-full -top-1.5 right-[30%] border-2 border-white cursor-pointer shadow-sm"></div>
+            </div>
+            <div className="flex justify-between text-sm font-bold">
+              <span>$50</span>
+              <span>$200</span>
+            </div>
+          </div>
+
+          {/* Colors Selection */}
+          <div className="py-6 border-b">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold">Colors</h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 15l-6-6-6 6" /></svg>
+            </div>
+            <div className="grid grid-cols-5 gap-3">
+              <button className="w-8 h-8 rounded-full bg-green-500 border border-black/10 transition-transform hover:scale-110"></button>
+              <button className="w-8 h-8 rounded-full bg-red-500 border border-black/10 transition-transform hover:scale-110"></button>
+              <button className="w-8 h-8 rounded-full bg-yellow-400 border border-black/10 transition-transform hover:scale-110"></button>
+              <button className="w-8 h-8 rounded-full bg-orange-500 border border-black/10 transition-transform hover:scale-110"></button>
+              <button className="w-8 h-8 rounded-full bg-cyan-400 border border-black/10 transition-transform hover:scale-110"></button>
+              <button className="w-8 h-8 rounded-full bg-blue-600 border border-black/10 flex items-center justify-center text-white text-[10px]">✓</button>
+              <button className="w-8 h-8 rounded-full bg-purple-600 border border-black/10 transition-transform hover:scale-110"></button>
+              <button className="w-8 h-8 rounded-full bg-pink-500 border border-black/10 transition-transform hover:scale-110"></button>
+              <button className="w-8 h-8 rounded-full bg-white border border-gray-200 transition-transform hover:scale-110"></button>
+              <button className="w-8 h-8 rounded-full bg-black border border-black/10 transition-transform hover:scale-110"></button>
+            </div>
+          </div>
+
+          {/* Size Selection */}
+          <div className="py-6 border-b">
+            <div className="flex justify-between items-center mb-4 font-bold">
+              <h3>Size</h3>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 15l-6-6-6 6" /></svg>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button className="px-4 py-2 bg-[#F0F0F0] text-gray-500 text-sm rounded-full hover:bg-black hover:text-white transition-colors">XX-Small</button>
+              <button className="px-4 py-2 bg-[#F0F0F0] text-gray-500 text-sm rounded-full hover:bg-black hover:text-white transition-colors">X-Small</button>
+              <button className="px-4 py-2 bg-[#F0F0F0] text-gray-500 text-sm rounded-full hover:bg-black hover:text-white transition-colors">Small</button>
+              <button className="px-4 py-2 bg-[#F0F0F0] text-gray-500 text-sm rounded-full hover:bg-black hover:text-white transition-colors">Medium</button>
+              <button className="px-4 py-2 bg-black text-white text-sm rounded-full">Large</button>
+              <button className="px-4 py-2 bg-[#F0F0F0] text-gray-500 text-sm rounded-full hover:bg-black hover:text-white transition-colors">X-Large</button>
+            </div>
+          </div>
+
+          <button className="w-full bg-black text-white py-4 rounded-full font-bold mt-6 hover:bg-gray-800 transition-all active:scale-95 shadow-md">
+            Apply Filter
+          </button>
+        </aside>
+
+        {/* Main Product Section */}
+        <main className="flex-1">
+          <div className="flex flex-col md:flex-row justify-between items-baseline mb-6 gap-4">
+            <h1 className="text-3xl font-bold">{category?.name || 'Category'}</h1>
+            <div className="flex items-center justify-between w-full md:w-auto gap-2 text-gray-400 text-sm">
+              <span>Showing 1-{products.length} of {products.length} Products</span>
+              <span className="ml-4 text-black font-medium">
+                Sort by: <span className="font-bold cursor-pointer inline-flex items-center gap-1">Most Popular ▼</span>
+              </span>
+            </div>
+          </div>
+
+          {/* Product Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {products&&products.length>0 ? (
+              products.map((product)=>(
+                <div key={product.id} className='group cursor-pointer'>
+                  <div className="aspect-square bg-[#F0EEED] rounded-3xl overflow-hidden mb-4 relative">
+                    <img 
+                    src={product.image} alt={product.name} 
+                    className="w-full h-full object-cover mix-blend-multiply group-hover:scale-110 transition-transform duration-300" 
+                    />
+                  </div>
+                  <h3 className="font-bold text-lg mb-1">{product.name}</h3>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="flex text-yellow-400">★★★★<span className="text-yellow-400/50">★</span></div>
+                    <span className="text-xs text-black/60">4.5/5</span>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-2x1 font-bold">${product.price}</span>
+                    {product.oldPrice && (
+                      <>
+                      <span className="text-2xl font-bold text-black/30 line-through">${product.oldPrice.toLocaleString()}</span>
+                      <span className="bg-red-100 text-red-500 text-xs px-3 py-1 rounded-full font-bold">
+                        -{Math.round(((product.oldPrice - product.price)/ product.oldPrice)*100)}%
+                      </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))
+
+            ):(
+              <div className="col-span-full text-center py-12">
+                <span className="text-gray-500">No products found in this category</span>
+              </div>
+            )} 
+          </div>
+
+          {/* Pagination Section */}
+          <div className="flex justify-between items-center mt-12 pt-6 border-t border-black/10">
+            <button className="flex items-center gap-2 px-4 py-2 border rounded-xl hover:bg-gray-50 transition-all font-bold">
+              <span>←</span> Previous
+            </button>
+            <div className="hidden sm:flex gap-1">
+              <button className="w-10 h-10 rounded-xl bg-gray-100 font-bold">1</button>
+              <button className="w-10 h-10 rounded-xl hover:bg-gray-100 transition-all">2</button>
+              <button className="w-10 h-10 rounded-xl hover:bg-gray-100 transition-all">3</button>
+              <span className="w-10 h-10 flex items-center justify-center text-gray-400">...</span>
+              <button className="w-10 h-10 rounded-xl hover:bg-gray-100 transition-all">8</button>
+              <button className="w-10 h-10 rounded-xl hover:bg-gray-100 transition-all">9</button>
+              <button className="w-10 h-10 rounded-xl hover:bg-gray-100 transition-all">10</button>
+            </div>
+            <button className="flex items-center gap-2 px-4 py-2 border rounded-xl hover:bg-gray-50 transition-all font-bold">
+              Next <span>→</span>
+            </button>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+};
+
+export default Category;
